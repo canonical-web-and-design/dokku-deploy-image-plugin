@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+case "$1" in
+  deploy-image)
+    # Read arguments
+    image_location="$2"
+    app_name="$3"
+    [ -z "${image_location}" ] && echo "Please provide an image to deploy as the second argument" && exit 1
+    [ -z "${app_name}" ] && echo "Please provide an application name as the first argument" && exit 1
+
+    # Get the image
+    docker pull ${image_location}
+
+    # Tag it as a dokku image
+    docker tag ${image_location} dokku/${app_name}
+
+    # Make the directory
+    mkdir ${DOKKU_ROOT}/${app_name}
+
+    # Now deploy it
+    pluginhook pre-deploy ${app_name}
+    dokku deploy ${app_name}
+    pluginhook post-deploy ${app_name}
+
+    echo "Image ${image_location} deployed as ${app_name}"
+    ;;
+
+  deploy-image:postgresql)
+    # Read arguments
+    app_name="$2"; image_location="$3"
+    [ -z "${app_name}" ] && echo "Please provide an application name as the first argument" && exit 1
+    [ -z "${image_location}" ] && echo "Please provide an image to deploy as the second argument" && exit 1
+
+    # Get the image
+    docker pull ${image_location}
+
+    # Tag it as a dokku postgres image
+    docker tag ${image_location} postgresql/${app_name} # Or Whatever
+
+    dokku postgresql:link ${app_name} ${app_name}
+    ;;
+esac
