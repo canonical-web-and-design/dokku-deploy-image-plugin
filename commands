@@ -13,7 +13,7 @@ case "$1" in
     docker pull ${image_location}
 
     # Tag it as a dokku image
-    docker tag ${image_location} dokku/${app_name}
+    docker tag -f ${image_location} dokku/${app_name}
 
     # Make the directory
     mkdir ${DOKKU_ROOT}/${app_name}
