@@ -16,5 +16,5 @@ Installation
 ---
 
 ```bash
-git clone https://github.com/ubuntudesign/dokku-deploy-image-plugin /var/lib/dokku/plugins/image-plugin
+git clone https://github.com/ubuntudesign/dokku-deploy-image-plugin /var/lib/dokku/plugins/deploy-image
 ```
