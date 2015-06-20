@@ -16,7 +16,7 @@ case "$1" in
     docker tag -f ${image_location} dokku/${app_name}
 
     # Make the directory
-    mkdir ${DOKKU_ROOT}/${app_name}
+    mkdir -p ${DOKKU_ROOT}/${app_name}
 
     # Now deploy it
     pluginhook pre-deploy ${app_name}
