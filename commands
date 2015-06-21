@@ -31,17 +31,13 @@ case "$1" in
 
   deploy-image:create-postgresql-db)
     # Read arguments
-    db_image="$2"; db_name="$3"
+    db_name="$2"
 
-    [ -z "${db_image}" ] && echo "Please provide an image to deploy as the first argument" && exit 1
-    [ -z "${db_name}" ] && echo "Please provide a name for the database as the second argument" && exit 1
-
-    # Retrieve the image
-    docker pull ${db_image}
+    [ -z "${db_name}" ] && echo "Please provide a name for the database as the first argument" && exit 1
 
     # Start the container
     docker rm -f ${db_name} 2> /dev/null || true
-    docker run --name "${db_name}" -p 5432 -d ${db_image}
+    docker run --name "${db_name}" -p 5432 -d postgres
 
     ;;
 
