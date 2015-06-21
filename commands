@@ -18,9 +18,6 @@ case "$1" in
     # Make the directory
     mkdir -p ${DOKKU_ROOT}/${app_name}
 
-    # Add a "CONTAINER.*" to make the dokku checks happy (for some reason)
-    ln -s ${DOKKU_ROOT}/${app_name}/CONTAINER ${DOKKU_ROOT}/${app_name}/CONTAINER.99
-
     # Now deploy it
     pluginhook pre-deploy ${app_name}
     dokku deploy ${app_name}
