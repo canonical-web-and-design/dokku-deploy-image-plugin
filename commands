@@ -23,7 +23,10 @@ case "$1" in
     dokku deploy ${app_name}
     pluginhook post-deploy ${app_name}
 
-    echo "Image ${image_location} deployed as ${app_name}"
+    echo ""
+    echo "==="
+    echo "Image ${image_location} deployed to ${app_name}"
+    echo "==="
     ;;
 
   deploy-image:create-postgresql-db)
