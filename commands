@@ -6,8 +6,8 @@ case "$1" in
     # Read arguments
     image_location="$2"
     app_name="$3"
-    [ -z "${image_location}" ] && echo "Please provide an image to deploy as the second argument" && exit 1
-    [ -z "${app_name}" ] && echo "Please provide an application name as the first argument" && exit 1
+    [ -z "${image_location}" ] && echo "Please provide an image to deploy as the first argument" && exit 1
+    [ -z "${app_name}" ] && echo "Please provide an application name as the second argument" && exit 1
 
     # Get the image
     docker pull ${image_location}
@@ -29,18 +29,36 @@ case "$1" in
     echo "Image ${image_location} deployed as ${app_name}"
     ;;
 
-  deploy-image:postgresql)
+  deploy-image:create-postgresql-db)
     # Read arguments
-    app_name="$2"; image_location="$3"
-    [ -z "${app_name}" ] && echo "Please provide an application name as the first argument" && exit 1
-    [ -z "${image_location}" ] && echo "Please provide an image to deploy as the second argument" && exit 1
+    db_image="$2"; db_name="$3"
 
-    # Get the image
-    docker pull ${image_location}
+    [ -z "${db_image}" ] && echo "Please provide an image to deploy as the first argument" && exit 1
+    [ -z "${db_name}" ] && echo "Please provide a name for the database as the second argument" && exit 1
 
-    # Tag it as a dokku postgres image
-    docker tag ${image_location} postgresql/${app_name} # Or Whatever
+    # Retrieve the image
+    docker pull ${db_image}
 
-    dokku postgresql:link ${app_name} ${app_name}
+    # Start the container
+    docker rm -f ${db_name} 2> /dev/null || true
+    docker run --name "${db_name}" -p 5432 -d ${db_image}
+
     ;;
+
+  deploy-image:link-postgresql-db)
+    # Read arguments
+    db_name="$2"; app_name="$3"
+
+    [ -z "${db_name}" ] && echo "Please provide a name for the database as the first argument" && exit 1
+    [ -z "${app_name}" ] && echo "Please provide an application name as the second argument" && exit 1
+    
+    # Get IP and Port
+    DB_CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.Gateway }}' ${db_name})
+    DB_CONTAINER_PORT=$(docker port "${db_name}" 5432 | sed 's/0.0.0.0://')
+
+    # Link the app to this DB
+    dokku config:set ${app_name} "DATABASE_URL=postgres://postgres@${DB_CONTAINER_IP}:${DB_CONTAINER_PORT}/postgres"
+
+    ;;
+
 esac
